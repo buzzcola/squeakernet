@@ -1,5 +1,5 @@
 '''
-SqueakerNet 0.001 : turns a crank
+SqueakerNet 0.002 : turns a crank, has a config file
 
 Setup:
   pip install RPi.GPIO
@@ -10,15 +10,20 @@ Setup:
 import RPi.GPIO as GPIO
 import time
 import wiringpi
+import ConfigParser
 
-SPEED = 10
-STILL = 150
-CLOCKWISE = STILL - SPEED
-COUNTER_CLOCKWISE = STILL + SPEED
+config = ConfigParser.ConfigParser()
+config.read("squeaker_net.ini")
 
-delay_period = 2.4;
-servo_pin = 18;
-button_pin = 23;
+pwm_still = config.getint("servo", "pwm_still")
+crank_speed = config.getint("servo", "crank_speed")
+crank_time = config.getfloat("servo", "crank_time")
+servo_pin = config.getint("servo", "servo_pin")
+
+pwm_clockwise = pwm_still - crank_speed
+pwm_counter_clockwise = pwm_still + crank_speed
+
+button_pin = config.getint("button", "button_pin")
 
 def waitForButtonPress():
         print 'DO NOT PUSH BUTTON'
@@ -26,7 +31,7 @@ def waitForButtonPress():
                 input_state = GPIO.input(button_pin)
                 if input_state == False:
                         print 'YOU PUSHED THE BUTTON'
-                        go(CLOCKWISE)
+                        go(pwm_clockwise)
                         time.sleep(0.2)
 
 def initializeButton():
@@ -49,8 +54,8 @@ def initializeServo():
  
 def go(direction):
         wiringpi.pwmWrite(servo_pin, direction)
-        time.sleep(delay_period)
-        wiringpi.pwmWrite(servo_pin, STILL)
+        time.sleep(crank_time)
+        wiringpi.pwmWrite(servo_pin, pwm_still)
 
 if __name__ == "__main__":
         initializeButton();
