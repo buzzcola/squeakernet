@@ -1,5 +1,9 @@
+version = '0.003'
 '''
-SqueakerNet 0.002 : turns a crank, has a config file
+SqueakerNet
+  - Turns a crank 
+  - Has a config file
+  - Displays messages on an LED
 
 Setup:
   pip install RPi.GPIO
@@ -10,10 +14,26 @@ Setup:
 import RPi.GPIO as GPIO
 import time
 import wiringpi
+import lcd_display
+from lcd_display import lcd_string, lcd_clear, LCD_CMD, LCD_LINE_1, LCD_LINE_2
 import ConfigParser
+import os
+import sys
 
 config = ConfigParser.ConfigParser()
-config.read("squeaker_net.ini")
+config.read(os.path.join(sys.path[0], "squeaker_net.ini"))
+
+log_verbose = config.getboolean('system', 'log_verbose')
+
+def printConfig(config):
+        print('SqueakerNet Config:')
+        for section in config.sections():
+                print('  %s' % section)
+                for option in config.options(section):
+                        print '    %s: %s' % (option, config.get(section, option))
+
+if(log_verbose):
+        printConfig(config)
 
 pwm_still = config.getint("servo", "pwm_still")
 crank_speed = config.getint("servo", "crank_speed")
@@ -25,20 +45,43 @@ pwm_counter_clockwise = pwm_still + crank_speed
 
 button_pin = config.getint("button", "button_pin")
 
-def waitForButtonPress():
-        print 'DO NOT PUSH BUTTON'
+lcd_display.init(config)
+
+def main():
+        log('SqueakerNet FLP', 'v0.003')
         while True:
                 input_state = GPIO.input(button_pin)
                 if input_state == False:
-                        print 'YOU PUSHED THE BUTTON'
+                        log("Let's enjoy!", 'FEED CAT MEOW')
                         go(pwm_clockwise)
-                        time.sleep(0.2)
+                        log('SqueakerNet FLP', 'v0.002')
+                time.sleep(0.2)
 
-def initializeButton():
+def initializeGPIO():
+        # set for standard broadcom pin numbering.
         GPIO.setmode(GPIO.BCM)
+
+def initializeButton():        
         GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 def initializeServo(): 
+        '''
+        WIP: rewrite servo stuff with the GPIO library. The servo/button code
+        is taken from a wiringpi sample while the LED stuff uses wiringpi - 
+        it's bush league to have two different libraries here! :)
+
+        # set pin to be a PWM output
+        GPIO.setup(servo_pin, GPIO.PWM_OUTPUT)
+
+        wiringpi.pinMode(servo_pin, wiringpi.GPIO.PWM_OUTPUT)
+        
+        # set the PWM mode to milliseconds stype
+        wiringpi.pwmSetMode(wiringpi.GPIO.PWM_MODE_MS)
+        
+        # divide down clock
+        wiringpi.pwmSetClock(192)
+        wiringpi.pwmSetRange(2000)
+        '''
         # use 'GPIO naming'
         wiringpi.wiringPiSetupGpio()
         
@@ -51,13 +94,29 @@ def initializeServo():
         # divide down clock
         wiringpi.pwmSetClock(192)
         wiringpi.pwmSetRange(2000)
- 
+
 def go(direction):
+        # turn the crank.
         wiringpi.pwmWrite(servo_pin, direction)
         time.sleep(crank_time)
         wiringpi.pwmWrite(servo_pin, pwm_still)
 
+def log(line1, line2):
+        # write a message to the output (console and lcd display.)
+        print '%s %s' % (line1, line2)
+        lcd_string(line1, LCD_LINE_1)
+        lcd_string(line2, LCD_LINE_2)
+
 if __name__ == "__main__":
-        initializeButton();
-        initializeServo();
-        waitForButtonPress();
+        try:
+                initializeButton();
+                initializeServo();
+                main();
+        except KeyboardInterrupt:
+                pass
+        finally:
+                lcd_clear()
+                lcd_string("SqueakerNet",LCD_LINE_1)
+                lcd_string("** OFFLINE **",LCD_LINE_2)
+                GPIO.cleanup()
+
