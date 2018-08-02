@@ -1,4 +1,6 @@
-version = '0.003'
+name = 'SqueakerNet FLP'
+version = 'v0.004'
+
 '''
 SqueakerNet
   - Turns a crank 
@@ -15,7 +17,7 @@ import RPi.GPIO as GPIO
 import time
 import wiringpi
 import lcd_display
-from lcd_display import lcd_string, lcd_clear, LCD_CMD, LCD_LINE_1, LCD_LINE_2
+from lcd_display import lcd_string, lcd_clear, LCD_LINE_1, LCD_LINE_2
 import ConfigParser
 import os
 import sys
@@ -48,14 +50,18 @@ button_pin = config.getint("button", "button_pin")
 lcd_display.init(config)
 
 def main():
-        log('SqueakerNet FLP', 'v0.003')
-        while True:
-                input_state = GPIO.input(button_pin)
-                if input_state == False:
-                        log("Let's enjoy!", 'FEED CAT MEOW')
-                        go(pwm_clockwise)
-                        log('SqueakerNet FLP', 'v0.002')
-                time.sleep(0.2)
+        log('SqueakerNet FLP', version)
+        
+        if len(sys.argv) > 1 and sys.argv[1] == 'feed':
+                go(pwm_clockwise)
+        else:
+                while True:
+                        input_state = GPIO.input(button_pin)
+                        if input_state == False:
+                                log("Let's enjoy!", 'FEED CAT MEOW')
+                                go(pwm_clockwise)
+                                log('SqueakerNet FLP', version)
+                        time.sleep(0.2)
 
 def initializeGPIO():
         # set for standard broadcom pin numbering.
@@ -69,11 +75,10 @@ def initializeServo():
         WIP: rewrite servo stuff with the GPIO library. The servo/button code
         is taken from a wiringpi sample while the LED stuff uses wiringpi - 
         it's bush league to have two different libraries here! :)
-
+        
         # set pin to be a PWM output
+        #wiringpi.pinMode(servo_pin, wiringpi.GPIO.PWM_OUTPUT)
         GPIO.setup(servo_pin, GPIO.PWM_OUTPUT)
-
-        wiringpi.pinMode(servo_pin, wiringpi.GPIO.PWM_OUTPUT)
         
         # set the PWM mode to milliseconds stype
         wiringpi.pwmSetMode(wiringpi.GPIO.PWM_MODE_MS)
@@ -81,6 +86,7 @@ def initializeServo():
         # divide down clock
         wiringpi.pwmSetClock(192)
         wiringpi.pwmSetRange(2000)
+
         '''
         # use 'GPIO naming'
         wiringpi.wiringPiSetupGpio()
@@ -94,6 +100,7 @@ def initializeServo():
         # divide down clock
         wiringpi.pwmSetClock(192)
         wiringpi.pwmSetRange(2000)
+        
 
 def go(direction):
         # turn the crank.
