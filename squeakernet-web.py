@@ -1,4 +1,5 @@
 from bottle import route, run, template, static_file
+import psutil
 import ConfigParser
 import os
 import sys
@@ -16,5 +17,9 @@ def index():
 @route('/<filepath:path>')
 def serve_file(filepath):
     return static_file(filepath, root)
+
+@route('/cpu')
+def cpu():
+    return psutil.cpu_percent()
 
 run(host='0.0.0.0', port=port)

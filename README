@@ -26,11 +26,13 @@ dedicated to mr. squeakers, r.i.p.
 
 
 setup:
+
   pip install wiringpi
   pip install bottle
+  pip install psutil
 
 adjust squeakernet.ini for your rig
-configure cronjob for web server and scheduled feeding. example:
+configure cronjobs for the web server and scheduled feeding. example:
 
 # note: EST is GMT -5 (-4 during EDT.)
 
