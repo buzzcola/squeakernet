@@ -29,7 +29,7 @@ def temp():
     command_result = os.popen('vcgencmd measure_temp').readline()
     result = command_result.replace("temp=","").replace("'C\n","")
     # will fail (500) on an OS that doesn't have this command (that's ok.)
-    return float(result)
+    return str(float(result))
 
 @route('/weight')
 def weight():
