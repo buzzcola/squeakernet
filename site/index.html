@@ -16,8 +16,10 @@
         </div>
     
         <div class="row">
-            <h5 class="header col s12 light">Last Feed Time: foo</h5>
-            <h5 class="header col s12 light">Food in bowl: #NaN g</h5>
+            <h5 class="header col s12 light">Last Feed Time: <span id="lastFeed">[...]</span></h5>
+            <h5 class="header col s12 light">Food in bowl: <span id="weight">[...]</span>g</h5>
+            <h5 class="header col s12 light">CPU: <span id="cpu">[...]</span></h5>
+            <h5 class="header col s12 light">Temp (C): <span id="temp">[...]</span></h5>
         </div>
       <br>
     </div>
@@ -28,5 +30,6 @@
 
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
-  </body>
+  <script src="scripts/index.js"></script>
+</body>
 </html>
