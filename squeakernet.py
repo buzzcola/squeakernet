@@ -18,12 +18,18 @@ pwm_counter_clockwise = pwm_still + crank_speed
 def main():
         log('SqueakerNet FLP')
         
+        checkPermissions()
+
         if len(sys.argv) > 1 and sys.argv[1] == 'feed':
                 initializeServo()
                 log('FEED CAT MEOW: Turning crank for %s seconds.' % crank_time)
                 go(pwm_clockwise)
         else:
                 log('Unknown command. Have a nice day.')
+
+def checkPermissions():
+        if hasattr(os, 'geteuid') and os.geteuid() <> 0:
+                raise SystemError('This program must be run as root. Can''t continue.')
 
 def initializeServo(): 
         # use 'GPIO naming'
