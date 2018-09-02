@@ -43,4 +43,4 @@ configure cronjobs for the web server and scheduled feeding. example:
 0 23 * * * python /path_to_here/squeakernet/squeakernet.py feed
 
 # start the web server
-@reboot python /path_to_here/squeakernet/squeakernet-web.py
+@reboot python /path_to_here/squeakernet/squeakernet_web.py

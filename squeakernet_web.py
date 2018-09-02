@@ -1,3 +1,7 @@
+'''
+A friendly web interface with information from the feeder and (soon) the ability to trigger a feeding.
+'''
+
 from bottle import route, run, template, static_file
 import psutil
 import ConfigParser
