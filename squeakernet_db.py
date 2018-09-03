@@ -2,26 +2,39 @@
 Provides SqueakerNet with connectivity to a SQLite database for logging and stuff.
 '''
 
-import os, sys, sqlite3, datetime
+import os
+import sys
+import sqlite3
+import datetime
+from enum import Enum
 
 db_filename = os.path.join(sys.path[0], 'squeakernet.db')
 
-sql_create_db = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, message TEXT, reading NUMERIC)'
-sql_log = 'INSERT INTO logs(date, message, reading) VALUES (?, ?, ?)'
-sql_select_all = 'SELECT id, date, message, reading FROM logs ORDER BY id DESC'
+SQL_CREATE_DB = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, category TEXT, message TEXT, reading NUMERIC)'
+SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?)'
+SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
+SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
 
-date_format = '%Y-%m-%d %I:%M:%S'
+DATE_FORMAT = '%Y-%m-%d %I:%M:%S'
 
-def writeLog(message, reading):
-    date = datetime.datetime.now().strftime(date_format)
+def write_log(log_category, message, reading):
+    date = datetime.datetime.now().strftime(DATE_FORMAT)
     with _db() as db:
-        db.cursor().execute(sql_log, (date, message, reading))
+        db.cursor().execute(SQL_LOG, (date, log_category.name, message, reading))
 
-def getLogs():
+def get_logs(log_category = None):
     with _db() as db:
         c = db.cursor()
-        c.execute(sql_select_all)        
+        if log_category:
+            c.execute(SQL_SELECT_CATEGORY, (log_category.name,))
+        else:
+            c.execute(SQL_SELECT_ALL)
         return c.fetchall()
+
+class LogCategory(Enum):
+    FEED = 1
+    SYSTEM = 2
+    WEIGHT = 3
 
 # this class lets us use the "with" keyword for quick easy SQL statements.
 class _db():
@@ -38,11 +51,12 @@ class _db():
 
 # connect to the db. Optionally create the DB (default).
 def _connect(check_existence = True):
-    if check_existence: _createDbIfMissing()
+    if check_existence: _create_db_if_missing()
     return sqlite3.connect(db_filename)
 
 # Create the database if it doesn't exist already.
-def _createDbIfMissing():
+def _create_db_if_missing():
     if os.path.isfile(db_filename): return
     with _db(False) as db:
-        db.cursor().execute(sql_create_db)
+        db.cursor().execute(SQL_CREATE_DB)
+    write_log(LogCategory.SYSTEM, 'New database created.', 0)
