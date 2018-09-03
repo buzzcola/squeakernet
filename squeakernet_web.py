@@ -2,13 +2,15 @@
 A friendly web interface with information from the feeder and (soon) the ability to trigger a feeding.
 '''
 
-from bottle import route, run, template, static_file
+from bottle import route, run, template, static_file, post
 import psutil
 import ConfigParser
 import os
 import sys
 import datetime
 import json
+import squeakernet_db
+import squeakernet
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
@@ -23,6 +25,10 @@ def index():
 @route('/<filepath:path>')
 def serve_file(filepath):
     return static_file(filepath, root)
+
+@post('/feed')
+def feed():
+    squeakernet.feed_the_cats()
 
 @route('/cpu')
 def cpu():
@@ -42,6 +48,6 @@ def weight():
 
 @route('/lastFeed')
 def last_feed():
-    return str(datetime.datetime.now())
+    return str(squeakernet_db.get_last_feed())
 
 run(host='0.0.0.0', port=port)

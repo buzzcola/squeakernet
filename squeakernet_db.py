@@ -6,6 +6,7 @@ import os
 import sys
 import sqlite3
 import datetime
+import dateutil.parser
 from enum import Enum
 
 db_filename = os.path.join(sys.path[0], 'squeakernet.db')
@@ -14,6 +15,7 @@ SQL_CREATE_DB = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, category T
 SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?)'
 SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
+SQL_LAST_FEED = "SELECT MAX(date) FROM logs WHERE category = 'FEED'"
 
 DATE_FORMAT = '%Y-%m-%d %I:%M:%S'
 
@@ -31,12 +33,23 @@ def get_logs(log_category = None):
             c.execute(SQL_SELECT_ALL)
         return c.fetchall()
 
+def get_last_feed():
+    with _db() as db:
+        c = db.cursor()
+        c.execute(SQL_LAST_FEED)
+        result = c.fetchone()
+    
+    if(result): 
+        return dateutil.parser.parse(result[0])
+    else:
+        return None
+
 class LogCategory(Enum):
     FEED = 1
     SYSTEM = 2
     WEIGHT = 3
 
-# this class lets us use the "with" keyword for quick easy SQL statements.
+# this class lets us use the "with" keyword for SQL with less ceremony.
 class _db():
     def __init__(self, check_existence = True):
         self.check_existence = check_existence

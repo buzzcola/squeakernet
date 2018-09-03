@@ -6,10 +6,21 @@
                 window.setTimeout(function(){
                     window.setInterval(function() { getStat(stat) }, 5000);
                 }, i++ * 500);                
-            }            
+            }
+
+            $('#feed-button').click(feed);
         }
     };
     
+    function feed() {
+        if(!confirm('Dispense food now?')) return;
+
+        $.ajax({
+            method: 'POST',
+            url: '/feed'
+        });
+    }
+
     function getStat(route, target){
         var selector = '#' + (target || route);
         $.ajax('/' + route)

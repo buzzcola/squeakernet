@@ -18,7 +18,6 @@ pwm_clockwise = pwm_still - crank_speed
 pwm_counter_clockwise = pwm_still + crank_speed
 
 def main():
-    print_message('SqueakerNet FLP')
 
     if len(sys.argv) > 1 and sys.argv[1] == 'feed':
         feed_the_cats()
@@ -27,6 +26,9 @@ def main():
             print_logs(sys.argv[2].upper())
         else:
             print_logs()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'last':
+        print squeakernet_db.get_last_feed()
+
     else:
         print_message('Unknown command. Have a nice day.')
 
