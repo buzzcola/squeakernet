@@ -17,9 +17,9 @@ SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
 SQL_LAST_FEED = "SELECT MAX(date) FROM logs WHERE category = 'FEED'"
 
-DATE_FORMAT = '%Y-%m-%d %I:%M:%S'
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-def write_log(log_category, message, reading):
+def write_log(log_category, message, reading = 0.0):
     date = datetime.datetime.now().strftime(DATE_FORMAT)
     with _db() as db:
         db.cursor().execute(SQL_LOG, (date, log_category.name, message, reading))

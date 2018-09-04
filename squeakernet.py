@@ -28,7 +28,12 @@ def main():
             print_logs()
     elif len(sys.argv) > 1 and sys.argv[1] == 'last':
         print squeakernet_db.get_last_feed()
-
+    elif len(sys.argv) > 1 and sys.argv[1] == 'writelog':
+        if sys.argv > 2:
+            squeakernet_db.write_log(squeakernet_db.LogCategory.SYSTEM, sys.argv[2])
+            print 'Log written to database.'
+        else:
+            print 'writelog: No log was provided to write.'
     else:
         print_message('Unknown command. Have a nice day.')
 
