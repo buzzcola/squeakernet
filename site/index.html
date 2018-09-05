@@ -10,25 +10,53 @@
 <body>
   <div class="section no-pad-bot" id="index-banner">
     <div class="container">
-        <h1 class="header center orange-text">Squeakernet FLP</h1>
+        <h3 class="header center orange-text">Squeakernet FLP</h3>
         <div class="row center">
             <button id="feed-button" class="btn-large waves-effect waves-light orange">Feed</button>
         </div>
     
-        <div class="row">            
-            <h5 class="header col s12 light">Last Feed Time: <span id="lastFeed">[...]</span></h5>
-            <h5 class="header col s12 light">Food in bowl: <span id="weight">[...]</span>g (coming soon)</h5>
-            <h5 class="header col s12 light">CPU: <span id="cpu">[...]</span></h5>
-            <h5 class="header col s12 light">Temp (C): <span id="temp">[...]</span></h5>
-            <a href="/logs"><h5 class="header col s12 light">View Logs</h5></a>
+        <div class="row">
+          <table class="highlight">
+            <tr>
+              <td>Last Feed Time</td>
+              <td>
+                <i class="material-icons">access_time</i>
+                &nbsp;
+                <span id="lastFeed">[...]</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Food in bowl</td>
+              <td>
+                <span id="weight">[...]</span>g (coming soon)
+              </td>
+            </tr>
+            <tr>
+              <td>CPU Utilization</td>
+              <td>
+                <div id="cpuGauge" style="width:100px; height:100px;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>CPU Temperature</td>
+              <td>
+                <div id="tempGauge" style="width:100px; height:100px;"></div>                
+              </td>
+            </tr>            
+          </table>
+
+          <a href="/logs"><h5 class="header col s12 light">View Logs</h5></a>
         </div>
       <br>
     </div>
     <div class="container center">
-      <img src="images/mister-squeakers.jpg" />
+      <img src="images/mister-squeakers.jpg" style="width:100%; max-width:480px;" />
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
   <script src="scripts/index.js"></script>
