@@ -5,6 +5,8 @@ import ConfigParser
 import os
 import sys
 import squeakernet_db
+from squeakernet_db import LogCategory
+import squeakernet_scale
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
@@ -14,6 +16,8 @@ crank_speed = config.getint("servo", "crank_speed")
 crank_time = config.getfloat("servo", "crank_time")
 servo_pin = config.getint("servo", "servo_pin")
 
+alert_weight = config.getint("system", "alert_weight")
+
 pwm_clockwise = pwm_still - crank_speed
 pwm_counter_clockwise = pwm_still + crank_speed
 
@@ -21,16 +25,18 @@ def main():
 
     if len(sys.argv) > 1 and sys.argv[1] == 'feed':
         feed_the_cats()
+    elif len(sys.argv) > 1 and sys.argv[1] == "logweight":
+        log_weight()
     elif len(sys.argv) > 1 and sys.argv[1] == 'logs':
         if len(sys.argv) > 2:
             print_logs(sys.argv[2].upper())
         else:
             print_logs()
-    elif len(sys.argv) > 1 and sys.argv[1] == 'last':
+    elif len(sys.argv) > 1 and sys.argv[1] == 'lastfeed':
         print squeakernet_db.get_last_feed()
     elif len(sys.argv) > 1 and sys.argv[1] == 'writelog':
         if sys.argv > 2:
-            squeakernet_db.write_log(squeakernet_db.LogCategory.SYSTEM, sys.argv[2])
+            squeakernet_db.write_log(LogCategory.SYSTEM, sys.argv[2])
             print 'Log written to database.'
         else:
             print 'writelog: No log was provided to write.'
@@ -41,8 +47,38 @@ def feed_the_cats():
     check_permissions()
     initialize_servo()
     print_message('FEED CAT MEOW: Turning crank for %s seconds.' % crank_time)
+    weight_before = squeakernet_scale.get_weight()
     go(pwm_clockwise)
-    squeakernet_db.write_log(squeakernet_db.LogCategory.FEED, 'Turned crank for %s seconds.' % crank_time, crank_time)
+    weight_after = squeakernet_scale.get_weight()
+    dispensed = weight_after - weight_before
+    squeakernet_db.write_log(squeakernet_db.LogCategory.FEED, 'Turned crank for %s seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
+    log_weight(weight_after)
+
+    if dispensed < alert_weight:
+        sound_the_alarm()
+
+def sound_the_alarm():
+    # The feeding didn't work, probably because the hopper is empty.
+    # (TBD) probably email me or tweet or something.
+    print "ALERT ALERT ALERT HUNGRY CATS"
+
+def log_weight(value = None):
+    if value is None:
+        value =  squeakernet_scale.get_weight()
+    if value is None:
+        print 'No log: Bad reading from scale.'
+        return
+
+    last_weight = squeakernet_db.get_last_weight()
+    change = value - last_weight.reading
+    log_threshold = 1
+
+    if(abs(change)) > log_threshold:
+        squeakernet_db.write_log(LogCategory.WEIGHT, '', value)
+        print 'Logged weight of %s to the database (change of %s).' % (value, change)
+    else:
+        print 'No log: weight change of %s is < %s' % (change, log_threshold)
+
 
 def print_logs(category = None):
     if category and not hasattr(squeakernet_db.LogCategory, category):

@@ -50,8 +50,12 @@ def temp():
 
 @route('/api/weight')
 def weight():
-    # placholder until I get the HX711 working.
-    return str(50)
+    weight = squeakernet_db.get_last_weight()
+    weight_dict = {
+        'date': str(weight.date),
+        'reading': weight.reading
+    }
+    return json.dumps(weight_dict)
 
 @route('/api/lastFeed')
 def last_feed():

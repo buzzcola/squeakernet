@@ -5,8 +5,9 @@ squeakernet brings together (or will bring together) the internet of things (IoT
 and deep learning to create an immersive experiential platform for cats and other mammals.
 
 as of right now it:
-- turns a crank.
-- has a web server.
+- dispenses cat food on a schedule
+- hosts a simple web server with stats and logs
+- weighs the cat's bowl to measure food dispensed and monitor feeding habits.
 
 https://youtu.be/f9sUizPjpKM
 https://youtu.be/koqxneu9SLM
@@ -24,23 +25,30 @@ jgs (  )-(  )/
 
 dedicated to mr. squeakers, r.i.p.
 
+yet to come:
+- email/text me an alarm when the hopper is empty
+- audio system praises and encourages cats during meal time
+- tweet about the cats dietary habits each day
 
 setup:
 
   pip install wiringpi
+  pip install RPi.GPIO
   pip install bottle
   pip install psutil
 
 adjust squeakernet.ini for your rig
 configure cronjobs for the web server and scheduled feeding. example:
 
-# note: EST is GMT -5 (-4 during EDT.)
+# take weight reading once a minute, offset 30 seconds to avoid feed time
+* * * * * ( sleep 30 ; python /share/squeakernet/squeakernet.py logweight )
 
 # morning feed at 7:00am
-0 11 * * * python /path_to_here/squeakernet/squeakernet.py feed
+0 7 * * * python /share/squeakernet/squeakernet.py feed
 
 # evening feed at 7:00pm
-0 23 * * * python /path_to_here/squeakernet/squeakernet.py feed
+0 19 * * * python /share/squeakernet/squeakernet.py feed
 
-# start the web server
-@reboot python /path_to_here/squeakernet/squeakernet_web.py
+# log startup, start the web server on boot
+@reboot python /share/squeakernet/squeakernet.py writelog 'Squeakernet was rebooted.'
+@reboot python /share/squeakernet/squeakernet_web.py

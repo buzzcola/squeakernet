@@ -8,6 +8,7 @@ import sqlite3
 import datetime
 import dateutil.parser
 from enum import Enum
+from WeightReading import *
 
 db_filename = os.path.join(sys.path[0], 'squeakernet.db')
 
@@ -16,6 +17,7 @@ SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?
 SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
 SQL_LAST_FEED = "SELECT MAX(date) FROM logs WHERE category = 'FEED'"
+SQL_LAST_WEIGHT = "SELECT date, reading FROM logs WHERE category = 'WEIGHT' ORDER BY date DESC LIMIT 1"
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -39,8 +41,19 @@ def get_last_feed():
         c.execute(SQL_LAST_FEED)
         result = c.fetchone()
     
-    if(result): 
+    if result: 
         return dateutil.parser.parse(result[0])
+    else:
+        return None
+
+def get_last_weight():
+    with _db() as db:
+        c = db.cursor()
+        c.execute(SQL_LAST_WEIGHT)
+        result = c.fetchone()
+    
+    if result:
+        return WeightReading(dateutil.parser.parse(result[0]), result[1])
     else:
         return None
 
