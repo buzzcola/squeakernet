@@ -2,11 +2,12 @@
 A friendly web interface with information from the feeder and the ability to trigger a feed.
 '''
 
-from bottle import route, run, template, static_file, post
+from bottle import route, run, template, static_file, post, request
 import psutil
 import ConfigParser
 import os
 import sys
+import re
 import datetime
 import json
 import squeakernet_db
@@ -35,7 +36,10 @@ def serve_file(filepath):
 # API routes
 @post('/api/feed')
 def feed():
-    squeakernet.feed_the_cats()
+    client_ip = request.environ.get('REMOTE_ADDR')
+    local_pattern = '(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
+    if len(re.findall(local_pattern, client_ip)) > 0:
+        squeakernet.feed_the_cats()
 
 @route('/api/cpu')
 def cpu():
