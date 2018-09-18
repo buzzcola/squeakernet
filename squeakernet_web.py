@@ -11,6 +11,7 @@ import re
 import datetime
 import json
 import squeakernet_db
+from squeakernet_db import LogCategory
 import squeakernet
 
 config = ConfigParser.ConfigParser()
@@ -54,16 +55,11 @@ def temp():
 
 @route('/api/weight')
 def weight():
-    weight = squeakernet_db.get_last_weight()
-    weight_dict = {
-        'date': str(weight.date),
-        'reading': weight.reading
-    }
-    return json.dumps(weight_dict)
+    return squeakernet_db.get_last_log(LogCategory.WEIGHT).to_json()
 
 @route('/api/lastFeed')
 def last_feed():
-    return str(squeakernet_db.get_last_feed())
+    return squeakernet_db.get_last_log(LogCategory.FEED).to_json()
 
 @route('/api/logs')
 def logs():

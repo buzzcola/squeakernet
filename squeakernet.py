@@ -33,7 +33,8 @@ def main():
         else:
             print_logs()
     elif len(sys.argv) > 1 and sys.argv[1] == 'lastfeed':
-        print squeakernet_db.get_last_feed()
+        log = squeakernet_db.get_last_log(LogCategory.FEED)
+        print 'Dispensed %.2fg of kibbles at %s.' % (log.reading, log.date)
     elif len(sys.argv) > 1 and sys.argv[1] == 'writelog':
         if sys.argv > 2:
             squeakernet_db.write_log(LogCategory.SYSTEM, sys.argv[2])
@@ -69,7 +70,7 @@ def log_weight(value = None):
         print 'No log: Bad reading from scale.'
         return
 
-    last_weight = squeakernet_db.get_last_weight()
+    last_weight = squeakernet_db.get_last_log(LogCategory.WEIGHT)
     change = value - last_weight.reading
     log_threshold = 1
 

@@ -1,3 +1,7 @@
 .vscode
 *.pyc
 *.db
+
+# these allwow me to fake out GPIO/wiringpi on my local (non-pi) workstation.
+wiringpi.py
+RPi/

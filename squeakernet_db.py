@@ -8,7 +8,7 @@ import sqlite3
 import datetime
 import dateutil.parser
 from enum import Enum
-from WeightReading import *
+from Reading import Reading
 
 db_filename = os.path.join(sys.path[0], 'squeakernet.db')
 
@@ -16,8 +16,7 @@ SQL_CREATE_DB = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, category T
 SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?)'
 SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
-SQL_LAST_FEED = "SELECT MAX(date) FROM logs WHERE category = 'FEED'"
-SQL_LAST_WEIGHT = "SELECT date, reading FROM logs WHERE category = 'WEIGHT' ORDER BY date DESC LIMIT 1"
+SQL_LAST_LOG = "SELECT date, reading FROM logs WHERE category = ? ORDER BY date DESC LIMIT 1"
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -35,25 +34,14 @@ def get_logs(log_category = None):
             c.execute(SQL_SELECT_ALL)
         return c.fetchall()
 
-def get_last_feed():
+def get_last_log(log_category):
     with _db() as db:
         c = db.cursor()
-        c.execute(SQL_LAST_FEED)
-        result = c.fetchone()
-    
-    if result: 
-        return dateutil.parser.parse(result[0])
-    else:
-        return None
-
-def get_last_weight():
-    with _db() as db:
-        c = db.cursor()
-        c.execute(SQL_LAST_WEIGHT)
+        c.execute(SQL_LAST_LOG, (log_category.name,))
         result = c.fetchone()
     
     if result:
-        return WeightReading(dateutil.parser.parse(result[0]), result[1])
+        return Reading(dateutil.parser.parse(result[0]), result[1])
     else:
         return None
 

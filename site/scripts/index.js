@@ -6,14 +6,7 @@
             initWeightGauge();
             initCpuGauge();
             initTempGauge();
-
-            var i = 0;
-            for (const stat of ['lastFeed']) {
-                getStat(stat);
-                window.setTimeout(function(){
-                    window.setInterval(function() { getStat(stat) }, 5000);
-                }, i++ * 500);                
-            }
+            initLastFeed();
 
             $('#feed-button').click(feed);
         }
@@ -87,6 +80,29 @@
         refresh();
     }
 
+    function initLastFeed() {
+
+        var refresh = function() {
+            var lastFeedSelector = '#lastFeed';
+            var feedAmountselector = '#feedAmount';
+
+            $.ajax('/api/lastFeed')
+            .done(function(data){
+                var result = JSON.parse(data);                
+                var humanized = moment(result.date).fromNow();
+                $(lastFeedSelector).text(humanized);
+                $(lastFeedSelector).attr('title', result.date);
+                $(feedAmountselector).text(Math.round(result.reading));
+            })
+            .fail(function() {
+                $(lastFeedSelector).text("<error>")
+            });
+        };
+        
+        refresh();
+        window.setInterval(refresh, 5000);
+    }
+
     function feed() {
         if(!confirm('Dispense food now?')) return;
 
@@ -96,23 +112,6 @@
         });
     }
 
-    function getStat(route, target){
-        var selector = '#' + (target || route);
-        $.ajax('/api/' + route)
-        .done(function(data){
-            if(selector == '#lastFeed') {
-                // special: humanize last feed date.
-                var humanized = moment(data).fromNow();
-                $(selector).text(humanized);
-                $(selector).attr('title', data);
-            } else {
-                $(selector).text(data);
-            }
-        })
-        .fail(function() {
-            $(selector).text("<error>")
-        });
-    }
 
 })();
 
