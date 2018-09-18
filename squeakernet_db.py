@@ -18,8 +18,8 @@ SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
 SQL_LAST_LOG = 'SELECT date, reading FROM logs WHERE category = ? ORDER BY date DESC LIMIT 1'
 SQL_TODAYS_FEEDING = '''
-SELECT date, reading FROM
-    (SELECT :startofday as date, reading FROM logs WHERE category = 'WEIGHT' AND date LIKE :yesterday_pattern ORDER BY DATE DESC LIMIT 1)
+SELECT start as date, reading FROM
+    (SELECT :startofday as start, reading FROM logs WHERE category = 'WEIGHT' AND date LIKE :yesterday_pattern ORDER BY date DESC LIMIT 1)
 UNION
 SELECT date, reading FROM logs WHERE category = 'WEIGHT' AND date LIKE :today_pattern 
 ORDER BY date'''
