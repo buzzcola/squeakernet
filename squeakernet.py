@@ -41,6 +41,14 @@ def main():
             print 'Log written to database.'
         else:
             print 'writelog: No log was provided to write.'
+    elif len(sys.argv) > 1 and sys.argv[1] == 'query':
+        if sys.argv > 2:
+            result = squeakernet_db.query(sys.argv[2])
+            for row in result:
+                print '\t'.join([str(x) for x in row])
+        else:
+            print 'query: no query was provided to execute.'
+
     else:
         print_message('Unknown command. Have a nice day.')
 

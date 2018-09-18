@@ -7,6 +7,7 @@
             initCpuGauge();
             initTempGauge();
             initLastFeed();
+            initLineChart();
 
             $('#feed-button').click(feed);
         }
@@ -101,6 +102,47 @@
         
         refresh();
         window.setInterval(refresh, 5000);
+    }
+
+    function initLineChart(){
+        $.ajax('/api/today')
+            .done(function(data){
+                var result = JSON.parse(data);
+                processed = result.map(function(pair) {
+                    return [
+                        +new Date(pair[0]), 
+                        Math.max(Number.parseFloat(pair[1].toFixed(1)), 0)];
+                })
+                renderLineChart(processed);
+            });
+    }
+
+    function renderLineChart(data) {
+
+        Highcharts.chart('lineChart', {
+            title: {
+                text: "Today's feeding"
+            },        
+            yAxis: {
+                title: {
+                    text: 'Grams of Kibble in Bowl'
+                }
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            legend: {
+                enabled: false
+            },        
+            time: {
+                useUTC: false
+            },
+            series: [{
+                type: 'area',
+                name: 'Kibbles (g)',
+                data: data
+            }],
+        });
     }
 
     function feed() {

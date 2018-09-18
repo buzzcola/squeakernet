@@ -16,9 +16,16 @@ SQL_CREATE_DB = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, category T
 SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?)'
 SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
 SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
-SQL_LAST_LOG = "SELECT date, reading FROM logs WHERE category = ? ORDER BY date DESC LIMIT 1"
+SQL_LAST_LOG = 'SELECT date, reading FROM logs WHERE category = ? ORDER BY date DESC LIMIT 1'
+SQL_TODAYS_FEEDING = '''
+SELECT date, reading FROM
+    (SELECT :startofday as date, reading FROM logs WHERE category = 'WEIGHT' AND date LIKE :yesterday_pattern ORDER BY DATE DESC LIMIT 1)
+UNION
+SELECT date, reading FROM logs WHERE category = 'WEIGHT' AND date LIKE :today_pattern 
+ORDER BY date'''
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+DAY_FORMAT = '%Y-%m-%d'
 
 def write_log(log_category, message, reading = 0.0):
     date = datetime.datetime.now().strftime(DATE_FORMAT)
@@ -44,6 +51,24 @@ def get_last_log(log_category):
         return Reading(dateutil.parser.parse(result[0]), result[1])
     else:
         return None
+
+def get_todays_feeding(offset = 0):
+    with _db() as db:
+        c = db.cursor()
+        date = datetime.datetime.now() + datetime.timedelta(days = offset)        
+        yesterday = date + datetime.timedelta(offset - 1)
+        c.execute(SQL_TODAYS_FEEDING, {
+            'startofday': date.strftime(DAY_FORMAT) + ' 00:00:00',
+            'yesterday_pattern': yesterday.strftime(DAY_FORMAT) + '%',
+            'today_pattern': date.strftime(DAY_FORMAT) + '%'
+        })
+        return c.fetchall()
+
+def query(sql):
+    with _db() as db:
+        c = db.cursor()
+        c.execute(sql)
+        return c.fetchall()
 
 class LogCategory(Enum):
     FEED = 1

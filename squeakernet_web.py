@@ -61,6 +61,11 @@ def weight():
 def last_feed():
     return squeakernet_db.get_last_log(LogCategory.FEED).to_json()
 
+@route('/api/today')
+def today(offset = 0):
+    db_result = squeakernet_db.get_todays_feeding(offset)
+    return json.dumps(db_result)
+
 @route('/api/logs')
 def logs():
     logs = squeakernet_db.get_logs()
