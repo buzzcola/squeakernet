@@ -21,7 +21,8 @@
             min: 0,
             max: 75,
             symbol: 'g',
-            title: 'Kibbles'
+            title: 'Kibbles',
+            levelColors: ["#ff0000", "#f9c802", "#a9d70b"]
           });
 
         refreshWeightGauge = function() {
@@ -128,7 +129,7 @@
                 // recorded weight so the chart is up to date.
                 var last = processed[processed.length - 1];
                 filler[filler.length - 1] = [+new Date(), last[1]];
-                
+
                 var processedAndFilled = processed
                     .map(function(p,i) { return [p, filler[i]]; })
                     .reduce(function(a,b) { return a.concat(b); });
