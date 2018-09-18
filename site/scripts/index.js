@@ -28,7 +28,7 @@
             $.ajax('/api/weight')
             .done(function(data){
                 result = JSON.parse(data);
-                weightGauge.refresh(+result.reading);
+                weightGauge.refresh(Math.max(+result.reading, 0));
             });
         }
 
@@ -108,12 +108,32 @@
         $.ajax('/api/today')
             .done(function(data){
                 var result = JSON.parse(data);
+                // highcharts wants milliseconds since epoch. Also
+                // smooth out the negatives.
                 processed = result.map(function(pair) {
                     return [
                         +new Date(pair[0]), 
                         Math.max(Number.parseFloat(pair[1].toFixed(1)), 0)];
-                })
-                renderLineChart(processed);
+                });
+
+                // avoid sloping lines - add a point before each point
+                // to reflect the non-recorded weights in between.
+                var filler = new Array(processed.length);
+                for(var i = 0; i < processed.length - 1; i++) {
+                    var current = processed[i];
+                    var next = processed[i + 1];
+                    filler[i] = [next[0] - 1, current[1]];
+                }
+                // finally put in a point for right now with the last
+                // recorded weight so the chart is up to date.
+                var last = processed[processed.length - 1];
+                filler[filler.length - 1] = [+new Date(), last[1]];
+                
+                var processedAndFilled = processed
+                    .map(function(p,i) { return [p, filler[i]]; })
+                    .reduce(function(a,b) { return a.concat(b); });
+                
+                renderLineChart(processedAndFilled);
             });
     }
 
