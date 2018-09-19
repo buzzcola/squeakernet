@@ -117,13 +117,13 @@
                         Math.max(Number.parseFloat(pair[1].toFixed(1)), 0)];
                 });
 
-                // avoid sloping lines - add a point before each point
+                // avoid sloping lines - add a point ~1 minute before each point
                 // to reflect the non-recorded weights in between.
                 var filler = new Array(processed.length);
                 for(var i = 0; i < processed.length - 1; i++) {
                     var current = processed[i];
                     var next = processed[i + 1];
-                    filler[i] = [next[0] - 1, current[1]];
+                    filler[i] = [next[0] - 59999, current[1]];
                 }
                 // finally put in a point for right now with the last
                 // recorded weight so the chart is up to date.

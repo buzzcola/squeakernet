@@ -29,7 +29,7 @@ $(function() {
             { name: "date", title: "Date", type: "text", width: 100 },
             { name: "category", title: "Category", type: "text", width: 75 },
             { name: "message", title: "Message", type: "text", width: 200 },
-            { name: "reading", title: "Reading", type: "number", width: 50, filtering: false },
+            { name: "reading", title: "Reading", type: "number", width: 50, filtering: false, itemTemplate: function(value) { return value.toFixed(1); } },
             { type: "control", editButton: false, deleteButton: false }
         ],
 
