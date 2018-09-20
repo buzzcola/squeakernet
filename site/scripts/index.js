@@ -15,26 +15,30 @@
 
     function initWeightGauge() {
 
-        var weightGauge = new JustGage({
-            id: "weightGauge",
-            value: 0,
-            min: 0,
-            max: 75,
-            symbol: 'g',
-            title: 'Kibbles',
-            levelColors: ["#ff0000", "#f9c802", "#a9d70b"]
-          });
-
-        refreshWeightGauge = function() {
-            $.ajax('/api/weight')
-            .done(function(data){
-                result = JSON.parse(data);
-                weightGauge.refresh(Math.max(+result.reading, 0));
+        $.ajax('/api/config/dispenser/desired_grams')
+        .done(function(weightString){
+            var maxWeight = parseFloat(weightString);
+            var weightGauge = new JustGage({
+                id: "weightGauge",
+                value: 0,
+                min: 0,
+                max: maxWeight,
+                symbol: 'g',
+                title: 'Kibbles',
+                levelColors: ["#ff0000", "#f9c802", "#a9d70b"]
             });
-        }
 
-        window.setInterval(refreshWeightGauge, 5000);
-        refreshWeightGauge();
+            var refreshWeightGauge = function() {
+                $.ajax('/api/weight')
+                .done(function(data){
+                    result = JSON.parse(data);
+                    weightGauge.refresh(Math.max(+result.reading, 0));
+                });
+            }
+
+            window.setInterval(refreshWeightGauge, 5000);
+            refreshWeightGauge();    
+        });
     }
 
     function initCpuGauge() {

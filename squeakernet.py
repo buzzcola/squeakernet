@@ -11,10 +11,12 @@ import squeakernet_scale
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
 
-pwm_still = config.getint("servo", "pwm_still")
-crank_speed = config.getint("servo", "crank_speed")
-crank_time = config.getfloat("servo", "crank_time")
-servo_pin = config.getint("servo", "servo_pin")
+pwm_still = config.getint("dispenser", "pwm_still")
+crank_speed = config.getint("dispenser", "crank_speed")
+grams_per_second = config.getfloat("dispenser", "grams_per_second")
+desired_grams = config.getfloat("dispenser","desired_grams")
+crank_time = desired_grams / grams_per_second
+servo_pin = config.getint("dispenser", "servo_pin")
 
 alert_weight = config.getint("system", "alert_weight")
 

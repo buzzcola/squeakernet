@@ -2,7 +2,7 @@
 A friendly web interface with information from the feeder and the ability to trigger a feed.
 '''
 
-from bottle import route, run, template, static_file, post, request
+from bottle import route, run, template, static_file, post, request, abort
 import psutil
 import ConfigParser
 import os
@@ -20,21 +20,8 @@ port = config.getint('web', 'port')
 host = config.get('web', 'host')
 root = os.path.join(sys.path[0], 'site')
 
-# Content Pages
-@route('/')
-def index():
-    return serve_file('index.html')
-
-@route('/logs')
-def logs_page():
-    return serve_file('logs.html')
-
-# serve all file contents in the folder and subfolders.
-@route('/<filepath:path>')
-def serve_file(filepath):
-    return static_file(filepath, root)
-
 # API routes
+
 @post('/api/feed')
 def feed():
     client_ip = request.environ.get('REMOTE_ADDR')
@@ -75,6 +62,34 @@ def logs():
                 'message': x[3],
                 'reading': x[4]} for x in logs]
     return json.dumps(log_dict)
+
+# access to configuration on the client. Don't serve
+# options or sections that start with underscore.
+@route('/api/config/<section>/<option>')
+def get_config_setting(section, option):
+
+    if (section.startswith('_')
+        or option.startswith('_')
+        or not config.has_section(section) 
+        or not config.has_option(section, option)):
+        abort(404, 'Unknown config option.')
+    return config.get(section, option)
+
+# Content Pages
+@route('/')
+def index():
+    return serve_file('index.html')
+
+@route('/logs')
+def logs_page():
+    return serve_file('logs.html')
+
+# serve all file contents in the folder and subfolders.
+# note: position matters. keep this last in the route list, or it
+# will override other path-y routes like config.
+@route('/<filepath:path>')
+def serve_file(filepath):
+    return static_file(filepath, root)
 
 if __name__ == '__main__':
     squeakernet_db.write_log(squeakernet_db.LogCategory.SYSTEM, 'squeakernet_web started on port %d.' % port)
