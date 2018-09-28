@@ -6,8 +6,9 @@ and deep learning to create an immersive experiential platform for cats and othe
 
 as of right now it:
 - dispenses cat food on a schedule
-- hosts a simple web server with stats and logs
-- weighs the cat's bowl to measure food dispensed and monitor feeding habits.
+- hosts a simple web server with remote feed, stats, logs and a feeding chart
+- weighs the cat's bowl to measure food dispensed and monitor feeding habits
+- audio system praises and encourages cats during meal time
 
 https://youtu.be/f9sUizPjpKM
 https://youtu.be/koqxneu9SLM
@@ -27,10 +28,10 @@ dedicated to mr. squeakers, r.i.p.
 
 yet to come:
 - email/text me an alarm when the hopper is empty
-- audio system praises and encourages cats during meal time
 - tweet about the cats dietary habits each day
 
 setup:
+  sudo apt-get install libttspico-utils
 
   pip install wiringpi
   pip install RPi.GPIO
