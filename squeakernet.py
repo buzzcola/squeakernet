@@ -7,6 +7,7 @@ import sys
 import squeakernet_db
 from squeakernet_db import LogCategory
 import squeakernet_scale
+import squeakernet_speech
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
@@ -43,13 +44,11 @@ def main():
             print 'Log written to database.'
         else:
             print 'writelog: No log was provided to write.'
-    elif len(sys.argv) > 1 and sys.argv[1] == 'query':
+    elif len(sys.argv) > 1 and sys.argv[1] == 'say':
         if sys.argv > 2:
-            result = squeakernet_db.query(sys.argv[2])
-            for row in result:
-                print '\t'.join([str(x) for x in row])
+            squeakernet_speech.say(sys.argv[2])
         else:
-            print 'query: no query was provided to execute.'
+            print 'say: no phrase was provided to speak.'
 
     else:
         print_message('Unknown command. Have a nice day.')
@@ -59,9 +58,11 @@ def feed_the_cats():
     initialize_servo()
     print_message('FEED CAT MEOW: Turning crank for %s seconds.' % crank_time)
     weight_before = squeakernet_scale.get_weight()
+    squeakernet_speech.say('Hello nice kitties. Prepare to dispense kibbles.')
     go(pwm_clockwise)
     weight_after = squeakernet_scale.get_weight()
     dispensed = weight_after - weight_before
+    squeakernet_speech.say('I have dispensed %.1f grams of kibbles for you to enjoy. You are very good cats and I love you.' % dispensed)
     squeakernet_db.write_log(squeakernet_db.LogCategory.FEED, 'Turned crank for %.1f seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
     log_weight(weight_after)
 

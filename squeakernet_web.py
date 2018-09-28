@@ -13,6 +13,7 @@ import json
 import squeakernet_db
 from squeakernet_db import LogCategory
 import squeakernet
+import squeakernet_speech
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
@@ -28,6 +29,11 @@ def feed():
     local_pattern = '(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
     if len(re.findall(local_pattern, client_ip)) > 0:
         squeakernet.feed_the_cats()
+
+@post('/api/say/<phrase>')
+def say(phrase):
+    squeakernet_speech.say(phrase)
+
 
 @route('/api/cpu')
 def cpu():
