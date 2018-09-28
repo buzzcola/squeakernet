@@ -62,7 +62,7 @@ def feed_the_cats():
     go(pwm_clockwise)
     weight_after = squeakernet_scale.get_weight()
     dispensed = weight_after - weight_before
-    squeakernet_db.write_log(squeakernet_db.LogCategory.FEED, 'Turned crank for %s seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
+    squeakernet_db.write_log(squeakernet_db.LogCategory.FEED, 'Turned crank for %.1f seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
     log_weight(weight_after)
 
     if dispensed < alert_weight:
