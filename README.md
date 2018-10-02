@@ -46,9 +46,10 @@ Squeakernet creates an immersive feeding experience for cats and other mammals.
 # evening feed at 7:00pm
 0 19 * * * python /share/squeakernet/squeakernet.py feed
 
-# log startup, start the web server on boot
+# log startup, start the web server on boot, anounce with audio
 @reboot python /share/squeakernet/squeakernet.py writelog 'Squeakernet was rebooted.'
 @reboot python /share/squeakernet/squeakernet_web.py
+@reboot python /share/squeakernet/squeakernet.py say "Squeakernet F L P is ready to serve the kitties."
 ```
 
 ```
