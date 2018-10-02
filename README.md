@@ -1,46 +1,42 @@
 ## SqueakerNet FLP
-#### the ultimate feline lifestyle platform
+#### The Ultimate Feline Lifestyle Platform
 
-squeakernet brings together (or will bring together) the internet of things (IoT), blockchain 
-and deep learning to create an immersive experiential platform for cats and other mammals.
+Squeakernet creates an immersive feeding experience for cats and other mammals.
 
-as of right now it:
-- dispenses cat food on a schedule
-- hosts a simple web server with remote feed, stats, logs and a feeding chart
-- weighs the cat's bowl to measure food dispensed and monitor feeding habits
-- audio system praises and encourages cats during meal time
+#### Current Features
 
-https://youtu.be/f9sUizPjpKM
-https://youtu.be/koqxneu9SLM
-https://www.instagram.com/p/Bl_AyjBFyaL/
-https://www.instagram.com/p/BmBhocHgJdD/
+- Dispenses cat food on a schedule
+- Hosts a web server with remote feed, stats, logs and a feeding chart
+- Weighs the cat's bowl to measure food dispensed and monitor feeding habits
+- Uses an audio system to praise and encourage the cats during meal time.
 
-    .       .         
-    \`-"'"-'/
-     } 6 6 {    
-    =.  Y  ,=   
-      /^^^\  .
-     /     \  )           
-jgs (  )-(  )/ 
-     ""   ""
+![screenshot](readme/screenshot.png)
 
-dedicated to mr. squeakers, r.i.p.
+#### Latest Progress Videos
+- [New audio system alerts cats to impending feed, praises kitties](https://youtu.be/5Koy1ZGwy_Q)
+- [New chute controls kibble flow](https://www.instagram.com/p/BmBhocHgJdD/)
+- [Actually feeding the cat (pre-chute, messy)](https://www.instagram.com/p/Bl_AyjBFyaL/)
+- [Experimental LED Display (discontinued)](https://youtu.be/koqxneu9SLM)
+- [Breadboarded: push button, turn crank](https://youtu.be/f9sUizPjpKM)
 
-yet to come:
-- email/text me an alarm when the hopper is empty
-- tweet about the cats dietary habits each day
+#### Upcoming Features
+- Email/text me an alarm when the hopper is empty
+- Tweet about the cats dietary habits each day
 
-setup:
+#### Setup Instructions
+1. Install required stuff:
+```
   sudo apt-get install libttspico-utils
 
   pip install wiringpi
   pip install RPi.GPIO
   pip install bottle
   pip install psutil
+```
 
-adjust squeakernet.ini for your rig
-configure cronjobs for the web server and scheduled feeding. example:
-
+2. Adjust squeakernet.ini for your rig.
+3. Configure cronjobs for the web server and scheduled feeding. example:
+```
 # take weight reading once a minute, offset 30 seconds to avoid feed time
 * * * * * ( sleep 30 ; python /share/squeakernet/squeakernet.py logweight )
 
@@ -53,3 +49,17 @@ configure cronjobs for the web server and scheduled feeding. example:
 # log startup, start the web server on boot
 @reboot python /share/squeakernet/squeakernet.py writelog 'Squeakernet was rebooted.'
 @reboot python /share/squeakernet/squeakernet_web.py
+```
+
+```
+    .       .         
+    \`-"'"-'/
+     } 6 6 {    
+    =.  Y  ,=   
+      /^^^\  .
+     /     \  )           
+jgs (  )-(  )/ 
+     ""   ""
+
+dedicated to mr. squeakers, r.i.p.
+```
