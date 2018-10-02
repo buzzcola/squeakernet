@@ -1,4 +1,4 @@
-## SqueakerNet FLP
+## Squeakernet FLP
 #### The Ultimate Feline Lifestyle Platform
 
 Squeakernet creates an immersive feeding experience for cats and other mammals.
