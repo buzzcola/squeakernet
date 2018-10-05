@@ -14,8 +14,8 @@ REFERENCE_UNIT = config.getint("scale", "reference_unit")
 OFFSET = config.getint("scale", "offset")
 
 def get_weight():
-    try:
-        hx = HX711(PIN_DAT, PIN_CLK)
+    hx = HX711(PIN_DAT, PIN_CLK)
+    try:        
         hx.set_reading_format("LSB", "MSB")
         hx.set_reference_unit(REFERENCE_UNIT)
         hx.set_offset(OFFSET)

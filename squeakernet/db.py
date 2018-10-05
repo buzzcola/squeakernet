@@ -7,7 +7,6 @@ import sys
 import sqlite3
 import datetime
 import dateutil.parser
-from enum import Enum
 from reading import Reading
 from logcategory import LogCategory
 
