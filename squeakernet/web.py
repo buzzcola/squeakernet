@@ -5,15 +5,9 @@ A friendly web interface with information from the feeder and the ability to tri
 from bottle import route, run, template, static_file, post, request, abort
 import psutil
 import ConfigParser
-import os
-import sys
-import re
-import datetime
-import json
-import squeakernet_db
-from squeakernet_db import LogCategory
-import squeakernet
-import squeakernet_speech
+import os, sys, re, datetime, json
+import db, feeder, speech
+from logcategory import LogCategory
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(sys.path[0], "squeakernet.ini"))
@@ -26,14 +20,13 @@ root = os.path.join(sys.path[0], 'site')
 @post('/api/feed')
 def feed():
     client_ip = request.environ.get('REMOTE_ADDR')
-    local_pattern = '(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
+    local_pattern = r'(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
     if len(re.findall(local_pattern, client_ip)) > 0:
-        squeakernet.feed_the_cats()
+        feeder.feed_the_cats()
 
 @post('/api/say/<phrase>')
 def say(phrase):
-    squeakernet_speech.say(phrase)
-
+    speech.say(phrase)
 
 @route('/api/cpu')
 def cpu():
@@ -48,20 +41,20 @@ def temp():
 
 @route('/api/weight')
 def weight():
-    return squeakernet_db.get_last_log(LogCategory.WEIGHT).to_json()
+    return db.get_last_log(LogCategory.WEIGHT).to_json()
 
 @route('/api/lastFeed')
 def last_feed():
-    return squeakernet_db.get_last_log(LogCategory.FEED).to_json()
+    return db.get_last_log(LogCategory.FEED).to_json()
 
 @route('/api/today')
 def today(offset = 0):
-    db_result = squeakernet_db.get_todays_feeding(offset)
+    db_result = db.get_todays_feeding(offset)
     return json.dumps(db_result)
 
 @route('/api/logs')
 def logs():
-    logs = squeakernet_db.get_logs()
+    logs = db.get_logs()
     log_dict = [{'id': x[0],
                 'date': x[1],
                 'category': x[2],
@@ -97,6 +90,6 @@ def logs_page():
 def serve_file(filepath):
     return static_file(filepath, root)
 
-if __name__ == '__main__':
-    squeakernet_db.write_log(squeakernet_db.LogCategory.SYSTEM, 'squeakernet_web started on port %d.' % port)
+def start():
+    db.write_log(LogCategory.SYSTEM, 'squeakernet_web started on port %d.' % port)
     run(host='0.0.0.0', port=port)

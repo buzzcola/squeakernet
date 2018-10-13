@@ -7,8 +7,8 @@ import sys
 import sqlite3
 import datetime
 import dateutil.parser
-from enum import Enum
-from Reading import Reading
+from reading import Reading
+from logcategory import LogCategory
 
 db_filename = os.path.join(sys.path[0], 'squeakernet.db')
 
@@ -69,11 +69,6 @@ def query(sql):
         c = db.cursor()
         c.execute(sql)
         return c.fetchall()
-
-class LogCategory(Enum):
-    FEED = 1
-    SYSTEM = 2
-    WEIGHT = 3
 
 # this class lets us use the "with" keyword for SQL with less ceremony.
 class _db():
