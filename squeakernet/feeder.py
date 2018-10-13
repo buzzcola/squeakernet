@@ -1,3 +1,6 @@
+'''
+Control a feeder that dispenses kibbles. Specifically, a continuous rotation servo controlled via PWM.
+'''
 import time
 import datetime
 import wiringpi

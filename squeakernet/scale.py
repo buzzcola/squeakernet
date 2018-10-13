@@ -1,3 +1,6 @@
+'''
+Methods for reading from a scale. Facade to the hx711 library.
+'''
 import os
 import sys
 import ConfigParser
