@@ -5,9 +5,9 @@ class Reading():
         self.date = date
         self.reading = reading
     
-    def to_json(this):
+    def to_json(self):
         result = {
-            'date': str(this.date),
-            'reading': this.reading
+            'date': str(self.date),
+            'reading': self.reading
         }
         return json.dumps(result)
