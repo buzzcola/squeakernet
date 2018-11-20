@@ -24,7 +24,7 @@ Commands:
   writelog <message>: Write an arbitrary log message.
   say <phrase>: Speak a phrase for the kitties to enjoy.
 
-Any comands* that access GPIO must be run 
+Any commands* that access GPIO must be run 
 as superuser or the universe will explode.
 '''
 
