@@ -35,18 +35,25 @@ def feed_the_cats():
     speech.say('Hello nice kitties. Prepare to dispense kibbles.')
     go(pwm_clockwise)
     weight_after = scale.get_weight()
-    dispensed = weight_after - weight_before
-    speech.say('I have dispensed %.1f grams of kibbles for you to enjoy. You are very good cats and I love you.' % dispensed)
-    db.write_log(LogCategory.FEED, 'Turned crank for %.1f seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
-    scale.log_weight(weight_after)
+    
+    if weight_after <> None and weight_before <> None:
+        dispensed = weight_after - weight_before
+        speech.say('I have dispensed %.1f grams of kibbles for you to enjoy. You are very good cats and I love you.' % dispensed)
+        db.write_log(LogCategory.FEED, 'Turned crank for %.1f seconds, dispensing %.1fg of kibbles.' % (crank_time, dispensed), dispensed)
+        scale.log_weight(weight_after)
+        if dispensed < alert_weight:
+            sound_the_alarm()
 
-    if dispensed < alert_weight:
-        sound_the_alarm()
+    else:
+        speech.say('I have dispensed some kibbles for you to enjoy. I hope it\'s enough. You are very good cats and I love you.' % dispensed)
+        db.write_log(LogCategory.FEED, 'Turned crank for %.1f seconds. Scale failed to read weight.' % crank_time, 0)
+        scale.log_weight()
 
 def sound_the_alarm():
     # The feeding didn't work, probably because the hopper is empty.
     # (TBD) probably email me or tweet or something.
-    print "ALERT ALERT ALERT HUNGRY CATS"
+    for _ in range(5):
+        speech.say("ALERT ALERT ALERT HUNGRY CATS NEED MORE KIBBLES")
 
 def check_permissions():
     if hasattr(os, 'geteuid') and os.geteuid() <> 0:

@@ -15,6 +15,7 @@ PIN_DAT = config.getint("scale", "pin_DAT")
 PIN_CLK = config.getint("scale", "pin_CLK")
 REFERENCE_UNIT = config.getint("scale", "reference_unit")
 OFFSET = config.getint("scale", "offset")
+MAX_TRIES = 5
 
 def get_weight():
     hx = HX711(PIN_DAT, PIN_CLK)
@@ -24,9 +25,12 @@ def get_weight():
         hx.set_offset(OFFSET)
         result = None
 
-        while result is None:
+        tries = MAX_TRIES
+        while result is None and tries > 0:
             hx.reset()
             result = hx.get_weight()
+            tries -= 1
+
     finally:
         hx.cleanup()
 
@@ -37,6 +41,7 @@ def log_weight(value = None):
         value =  get_weight()
     if value is None:
         print 'No log: Bad reading from scale.'
+        db.write_log(LogCategory.ERROR, 'Couldn\'t read scale after %s tries.' % MAX_TRIES)
         return
 
     last_weight = db.get_last_log(LogCategory.WEIGHT)
