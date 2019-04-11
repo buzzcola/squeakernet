@@ -45,11 +45,10 @@ def log_weight(value = None):
         return
 
     last_weight = db.get_last_log(LogCategory.WEIGHT)
-    change = value - last_weight.reading
     log_threshold = 1
 
-    if(abs(change)) > log_threshold:
+    if last_weight == None or (abs(value - last_weight.reading) > log_threshold):
         db.write_log(LogCategory.WEIGHT, '', value)
-        print 'Logged weight of %s to the database (change of %s).' % (value, change)
+        print 'Logged weight of %s to the database.' % value
     else:
-        print 'No log: weight change of %s is < %s' % (change, log_threshold)
+        print 'No log: weight change of %s is < %s' % ((value - last_weight.reading), log_threshold)
