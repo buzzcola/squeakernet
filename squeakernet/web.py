@@ -3,6 +3,7 @@ A friendly web interface with information from the feeder and the ability to tri
 '''
 
 from bottle import route, run, template, static_file, post, request, abort
+from functools import wraps
 import psutil
 import ConfigParser
 import os, sys, re, datetime, json
@@ -15,18 +16,38 @@ port = config.getint('web', 'port')
 host = config.get('web', 'host')
 root = os.path.join(sys.path[0], 'site')
 
+# utils
+
+def localOnly(func):
+    @wraps(func)
+    def prevent_outsiders(*args, **kwargs):
+        client_ip = request.environ.get('REMOTE_ADDR')
+        local_pattern = r'(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
+        if len(re.findall(local_pattern, client_ip)) > 0:
+            return func(*args, **kwargs)
+    
+    return prevent_outsiders
+
 # API routes
 
+@localOnly
 @post('/api/feed')
 def feed():
-    client_ip = request.environ.get('REMOTE_ADDR')
-    local_pattern = r'(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)'
-    if len(re.findall(local_pattern, client_ip)) > 0:
-        feeder.feed_the_cats()
+    feeder.feed_the_cats()
 
+@localOnly
 @post('/api/say/<phrase>')
 def say(phrase):
     speech.say(phrase)
+
+@localOnly
+@post('/api/sayPreset/<phrase_index:int>')
+def say_preset(phrase_index):
+    phrases = config.get('speech', 'things_to_say').split('\n')
+    if phrase_index < 0 or phrase_index >= len(phrases):
+        abort(400, 'Bad phrase index')
+    
+    speech.say(phrases[phrase_index])
 
 @route('/api/cpu')
 def cpu():

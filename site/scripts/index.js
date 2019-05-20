@@ -1,5 +1,5 @@
 (function(){ 
-    var errorText = '<error>'
+    var errorText = '<error>';
 
     window.index = {
         'init': function() {           
@@ -8,6 +8,7 @@
             initTempGauge();
             initLastFeed();
             initLineChart();
+            initThingsToSay();
 
             $('#feed-button').click(feed);
         }
@@ -179,6 +180,47 @@
         });
     }
 
+    function initThingsToSay() {
+        let buttonContainer = document.querySelector('#phrases');
+
+        $.ajax('/api/config/speech/things_to_say')
+            .done(function(data){
+                let phrases = data.split('\n');
+                for(let i=0; i<phrases.length; i++) {
+                    let phrase = phrases[i];
+                    let button = document.createElement('button');
+                    for (let c of ['btn-medium', 'waves-effect', 'waves-light', 'light-blue', 'center-align']) {
+                        button.classList.add(c);
+                    }
+                    button.style.width = "70%";
+                    button.style.padding = "5px";
+                    button.style.marginBottom = "20px"
+                    button.innerText = phrase;
+                    button.addEventListener('click', function() { sayPreset(i) });
+                    buttonContainer.appendChild(button);
+                    buttonContainer.appendChild(document.createElement('br'));
+                }
+            });
+        
+        document.querySelector('#btnSay').addEventListener('click', function(){
+            let phrase = document.querySelector('#txtSayAnything').value;
+            if(phrase) say(phrase);
+        });
+    }
+
+    function sayPreset(phraseIndex){
+        $.ajax({
+            method: 'POST',
+            url: '/api/sayPreset/' + phraseIndex
+        });
+    }
+
+    function say(phrase) {
+        $.ajax({
+            method: 'POST',
+            url: '/api/say/' + encodeURI(phrase)
+        });
+    }
 
 })();
 
