@@ -16,9 +16,10 @@ Usage:
 Commands:
 
   help: Show this message.
-  feed: *Dispense kibbles.
-  startweb: *Run the squeakernet web server.
-  logweight: *Read weight from the scale and write it to the database.
+  feed*: Dispense kibbles.
+  startweb*: Run the squeakernet web server.
+  logweight*: Read weight from the scale and write it to the database.
+  weight*: Read the weight, with verbose output for troubleshooting.
   logs <?category>: Print logs from the database. See LogCategory.py.
   lastfeed: Show time and amount of last feeding.
   writelog <message>: Write an arbitrary log message.
@@ -44,6 +45,8 @@ def main():
         web.start()
     elif command == "logweight":
         scale.log_weight()
+    elif command == "weight":
+        scale.get_weight(verbose = True)
     elif command == 'logs':
         if len(sys.argv) > 2:
             print_logs(sys.argv[2].upper())

@@ -34,8 +34,6 @@ class HX711:
 
         self.set_gain(gain)
 
-        time.sleep(1)
-
     def is_ready(self):
         return GPIO.input(self.DOUT) == 0
 
@@ -48,7 +46,6 @@ class HX711:
             self.GAIN = 2
 
         GPIO.output(self.PD_SCK, False)
-        self.read()
     
     def createBoolList(self, size=8):
         ret = []
@@ -150,12 +147,18 @@ class HX711:
 
 
     def get_value(self, times=15):
-        return self.read_average(times) - self.OFFSET
+        result = self.read_average(times)
+        if result == None:
+            return None
+        else:
+            return result - self.OFFSET
 
     def get_weight(self, times=15):
-        value = self.get_value(times)
-        value = value / self.REFERENCE_UNIT
-        return value
+        result = self.get_value(times)
+        if result == None:
+            return None
+        else:
+            return result / self.REFERENCE_UNIT
 
     def tare(self, times=15):
        
