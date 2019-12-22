@@ -14,8 +14,7 @@ db_filename = os.path.join(sys.path[0], 'squeakernet.db')
 
 SQL_CREATE_DB = 'CREATE TABLE logs(id INTEGER PRIMARY KEY, date TEXT, category TEXT, message TEXT, reading NUMERIC)'
 SQL_LOG = 'INSERT INTO logs(date, category, message, reading) VALUES (?, ?, ?, ?)'
-SQL_SELECT_ALL = 'SELECT id, date, category, message, reading FROM logs ORDER BY id DESC'
-SQL_SELECT_CATEGORY = 'SELECT id, date, category, message, reading FROM logs WHERE category = ? ORDER BY id DESC'
+SQL_SELECT_RECENT = 'SELECT id, date, category, message, reading FROM logs WHERE date BETWEEN datetime(\'now\', \'-6 days\') AND datetime(\'now\', \'localtime\') ORDER BY id DESC'
 SQL_LAST_LOG = 'SELECT date, reading FROM logs WHERE category = ? ORDER BY date DESC LIMIT 1'
 SQL_TODAYS_FEEDING = '''
 SELECT start as date, reading FROM
@@ -32,13 +31,10 @@ def write_log(log_category, message, reading = 0.0):
     with _db() as db:
         db.cursor().execute(SQL_LOG, (date, log_category.name, message, reading))
 
-def get_logs(log_category = None):
+def get_logs():
     with _db() as db:
         c = db.cursor()
-        if log_category:
-            c.execute(SQL_SELECT_CATEGORY, (log_category.name,))
-        else:
-            c.execute(SQL_SELECT_ALL)
+        c.execute(SQL_SELECT_RECENT)
         return c.fetchall()
 
 def get_last_log(log_category):
